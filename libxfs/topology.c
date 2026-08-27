@@ -230,8 +230,12 @@ blkid_get_topology(
 	blkid_probe pr;
 
 	pr = blkid_new_probe_from_filename(device);
-	if (!pr)
-		return;
+	if (!pr) {
+		fprintf(stderr,
+			_("cannot probe device topology for device %s: %s\n"),
+			device, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
 	tp = blkid_probe_get_topology(pr);
 	if (!tp)
