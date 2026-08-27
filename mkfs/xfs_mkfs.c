@@ -3456,8 +3456,25 @@ validate_supported(
 	 */
 	if (mp->m_sb.sb_logblocks <
 			XFS_MIN_REALISTIC_LOG_BLOCKS(mp->m_sb.sb_blocklog)) {
-		fprintf(stderr,
+		/*
+		 * An internal log must fit within a single allocation group.
+		 * If the user specified the AG geometry but didn't ask for a
+		 * specific log size, the undersized log is due to allocation
+		 * groups that are too small, not a log size the user chose.
+		 */
+		if (cli->loginternal &&
+		    !cli_opt_set(&lopts, L_SIZE) &&
+		    (cli_opt_set(&dopts, D_AGCOUNT) ||
+		     cli_opt_set(&dopts, D_AGSIZE))) {
+			fprintf(stderr,
+ _("Allocation group size (%lld MiB) is too small to hold the minimum 64MiB log.\n"
+   "Specify fewer or larger allocation groups, or use a larger data device.\n"),
+				(long long)XFS_FSB_TO_B(mp,
+					mp->m_sb.sb_agblocks) >> 20);
+		} else {
+			fprintf(stderr,
  _("Log size must be at least 64MiB.\n"));
+		}
 		usage();
 	}
 
