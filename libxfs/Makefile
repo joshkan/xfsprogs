@@ -75,6 +75,7 @@ HFILES = \
 	xfs_zones.h \
 	stubs/xfs_buf_mem.h \
 	stubs/xfs_error.h \
+	stubs/xfs_extent_busy.h \
 	stubs/xfs_inode.h \
 	stubs/xfs_mount.h \
 	stubs/xfs_trace.h \
