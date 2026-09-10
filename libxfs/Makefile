@@ -55,6 +55,7 @@ HFILES = \
 	xfs_inode_buf.h \
 	xfs_inode_fork.h \
 	xfs_inode_util.h \
+	xfs_log_recover.h \
 	xfs_metadir.h \
 	xfs_metafile.h \
 	xfs_parent.h \
