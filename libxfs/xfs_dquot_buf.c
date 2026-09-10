@@ -14,6 +14,7 @@
 #include "xfs_quota_defs.h"
 #include "xfs_inode.h"
 #include "xfs_trans.h"
+#include "xfs_error.h"
 #include "xfs_health.h"
 #include "xfs_metadir.h"
 #include "xfs_metafile.h"

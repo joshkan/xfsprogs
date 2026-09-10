@@ -16,6 +16,7 @@
 #include "xfs_btree.h"
 #include "xfs_bmap_btree.h"
 #include "xfs_bmap.h"
+#include "xfs_error.h"
 #include "xfs_trace.h"
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"

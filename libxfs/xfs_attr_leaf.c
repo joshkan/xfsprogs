@@ -22,6 +22,7 @@
 #include "xfs_attr.h"
 #include "xfs_attr_remote.h"
 #include "xfs_attr_leaf.h"
+#include "xfs_error.h"
 #include "xfs_trace.h"
 #include "xfs_dir2.h"
 #include "xfs_ag.h"

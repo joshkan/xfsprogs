@@ -15,6 +15,7 @@
 #include "xfs_trans.h"
 #include "xfs_btree.h"
 #include "xfs_errortag.h"
+#include "xfs_error.h"
 #include "xfs_trace.h"
 #include "xfs_alloc.h"
 #include "xfs_btree_staging.h"

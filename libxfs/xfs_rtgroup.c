@@ -20,6 +20,7 @@
 #include "xfs_ag.h"
 #include "xfs_ag_resv.h"
 #include "xfs_health.h"
+#include "xfs_error.h"
 #include "xfs_bmap.h"
 #include "xfs_defer.h"
 #include "xfs_log_format.h"

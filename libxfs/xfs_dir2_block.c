@@ -16,6 +16,7 @@
 #include "xfs_bmap.h"
 #include "xfs_dir2.h"
 #include "xfs_dir2_priv.h"
+#include "xfs_error.h"
 #include "xfs_trace.h"
 #include "xfs_health.h"
 

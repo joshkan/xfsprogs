@@ -17,6 +17,7 @@
 #include "xfs_ialloc.h"
 #include "xfs_health.h"
 #include "xfs_bmap.h"
+#include "xfs_error.h"
 #include "xfs_trace.h"
 #include "xfs_ag.h"
 #include "iunlink.h"

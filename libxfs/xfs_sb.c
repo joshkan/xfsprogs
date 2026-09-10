@@ -14,7 +14,7 @@
 #include "xfs_mount.h"
 #include "xfs_ialloc.h"
 #include "xfs_alloc.h"
-#include "xfs_trace.h"
+#include "xfs_error.h"
 #include "xfs_trans.h"
 #include "xfs_bmap_btree.h"
 #include "xfs_alloc_btree.h"

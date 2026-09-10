@@ -12,6 +12,7 @@
 #include "xfs_mount.h"
 #include "xfs_trans.h"
 #include "xfs_btree.h"
+#include "xfs_error.h"
 #include "xfs_buf_mem.h"
 #include "xfs_btree_mem.h"
 #include "xfs_ag.h"

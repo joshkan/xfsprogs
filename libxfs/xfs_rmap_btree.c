@@ -18,6 +18,7 @@
 #include "xfs_rmap_btree.h"
 #include "xfs_health.h"
 #include "xfs_trace.h"
+#include "xfs_error.h"
 #include "xfs_ag.h"
 #include "xfs_ag_resv.h"
 #include "xfs_buf_mem.h"
