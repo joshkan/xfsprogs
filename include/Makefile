@@ -17,11 +17,7 @@ LIBHFILES = libxfs.h \
 	list.h \
 	parent.h \
 	spinlock.h \
-	xfs_inode.h \
 	xfs_metadump.h \
-	xfs_mount.h \
-	xfs_trace.h \
-	xfs_trans.h \
 	command.h \
 	input.h \
 	platform_defs.h

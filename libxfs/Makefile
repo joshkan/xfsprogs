@@ -73,7 +73,11 @@ HFILES = \
 	xfs_trans_resv.h \
 	xfs_trans_space.h \
 	xfs_dir2_priv.h \
-	xfs_zones.h
+	xfs_zones.h \
+	stubs/xfs_inode.h \
+	stubs/xfs_mount.h \
+	stubs/xfs_trace.h \
+	stubs/xfs_trans.h
 
 CFILES = buf_mem.c \
 	cache.c \
