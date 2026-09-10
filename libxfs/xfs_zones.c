@@ -4,7 +4,6 @@
  * Copyright (c) 2024-2025, Western Digital Corporation or its affiliates.
  */
 #include "xfs_platform.h"
-#include "xfs.h"
 #include "xfs_fs.h"
 #include "xfs_shared.h"
 #include "xfs_format.h"
