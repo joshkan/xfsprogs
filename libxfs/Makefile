@@ -29,7 +29,6 @@ HFILES = \
 	xfs_platform.h \
 	linux-err.h \
 	topology.h \
-	buf_mem.h \
 	xfblob.h \
 	xfile.h \
 	xfs_ag_resv.h \
@@ -74,6 +73,7 @@ HFILES = \
 	xfs_trans_space.h \
 	xfs_dir2_priv.h \
 	xfs_zones.h \
+	stubs/xfs_buf_mem.h \
 	stubs/xfs_inode.h \
 	stubs/xfs_mount.h \
 	stubs/xfs_trace.h \

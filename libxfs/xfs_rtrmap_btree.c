@@ -26,8 +26,7 @@
 #include "xfs_rtgroup.h"
 #include "xfs_bmap.h"
 #include "xfs_health.h"
-#include "xfile.h"
-#include "buf_mem.h"
+#include "xfs_buf_mem.h"
 #include "xfs_btree_mem.h"
 
 static struct kmem_cache	*xfs_rtrmapbt_cur_cache;

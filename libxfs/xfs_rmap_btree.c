@@ -20,8 +20,7 @@
 #include "xfs_trace.h"
 #include "xfs_ag.h"
 #include "xfs_ag_resv.h"
-#include "xfile.h"
-#include "buf_mem.h"
+#include "xfs_buf_mem.h"
 #include "xfs_btree_mem.h"
 
 static struct kmem_cache	*xfs_rmapbt_cur_cache;
