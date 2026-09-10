@@ -21,7 +21,7 @@
 #include "xfs_attr.h"
 #include "xfs_attr_leaf.h"
 #include "xfs_attr_remote.h"
-#include "xfs_quota_defs.h"
+#include "xfs_quota.h"
 #include "xfs_trans_space.h"
 #include "xfs_trace.h"
 #include "defer_item.h"

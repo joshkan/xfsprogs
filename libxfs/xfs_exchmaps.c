@@ -14,6 +14,7 @@
 #include "xfs_inode.h"
 #include "xfs_trans.h"
 #include "xfs_bmap.h"
+#include "xfs_quota.h"
 #include "xfs_exchmaps.h"
 #include "xfs_trace.h"
 #include "xfs_bmap_btree.h"

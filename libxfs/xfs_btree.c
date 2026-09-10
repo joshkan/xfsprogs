@@ -31,6 +31,7 @@
 #include "xfs_rtrmap_btree.h"
 #include "xfs_bmap.h"
 #include "xfs_rmap.h"
+#include "xfs_quota.h"
 #include "xfs_metafile.h"
 #include "xfs_rtrefcount_btree.h"
 
