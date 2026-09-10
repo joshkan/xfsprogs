@@ -15,12 +15,12 @@
 #include "xfs_refcount_btree.h"
 #include "xfs_refcount.h"
 #include "xfs_alloc.h"
+#include "xfs_health.h"
 #include "xfs_trace.h"
 #include "xfs_trans.h"
 #include "xfs_bit.h"
 #include "xfs_rmap.h"
 #include "xfs_ag.h"
-#include "xfs_health.h"
 
 static struct kmem_cache	*xfs_refcountbt_cur_cache;
 
