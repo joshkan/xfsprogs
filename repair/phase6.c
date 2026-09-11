@@ -622,7 +622,6 @@ ensure_rtgroup_file(
 	enum xfs_rtg_inodes	type)
 {
 	struct xfs_mount	*mp = rtg_mount(rtg);
-	struct xfs_inode	*ip = rtg->rtg_inodes[type];
 	const char		*name = libxfs_rtginode_name(type);
 	int			error;
 
@@ -651,11 +650,10 @@ ensure_rtgroup_file(
 _("Couldn't create rtgroup %u %s inode, error %d\n"),
 			rtg_rgno(rtg), name, error);
 
-	ip = rtg->rtg_inodes[type];
-
 	/* Mark the inode in use. */
-	mark_ino_inuse(mp, I_INO(ip), S_IFREG, I_INO(mp->m_rtdirip));
-	mark_ino_metadata(mp, I_INO(ip));
+	mark_ino_inuse(mp, I_INO(rtg->rtg_inodes[type]), S_IFREG,
+			I_INO(mp->m_rtdirip));
+	mark_ino_metadata(mp, I_INO(rtg->rtg_inodes[type]));
 	return true;
 }
 
