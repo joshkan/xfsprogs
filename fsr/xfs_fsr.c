@@ -46,6 +46,11 @@ static struct getbmap  *outmap = NULL;
 static int		outmap_size = 0;
 static int		RealUid;
 static int		tmp_agi;
+
+/* set the tmp file's allocation group (-G) */
+enum { GROUP_OFF, GROUP_SAME, GROUP_RR };
+static int		group_mode = GROUP_OFF;
+static unsigned int	group_rr;
 static int64_t		minimumfree = 2048;
 
 #define MNTTYPE_XFS             "xfs"
@@ -76,6 +81,9 @@ static void initallfs(char *mtab);
 static void fsrallfs(char *mtab, time_t howlong, char *leftofffile);
 static void fsrall_cleanup(int timeout);
 static int  getnextents(int);
+static long long group_target(int file_fd, int tfd, int rt);
+static int  group_scan(int fd, int rt, long long group, long long *first,
+			int *outside);
 int xfsrtextsize(int fd);
 int xfs_getrt(int fd, struct statvfs *sfbp);
 char * gettmpname(char *fname);
@@ -154,7 +162,7 @@ main(int argc, char **argv)
 
 	gflag = ! isatty(0);
 
-	while ((c = getopt(argc, argv, "C:p:e:MgsdnvTt:f:m:b:N:FV")) != -1) {
+	while ((c = getopt(argc, argv, "C:p:e:MgsdnvTt:f:m:b:N:FVG:")) != -1) {
 		switch (c) {
 		case 'M':
 			Mflag = 1;
@@ -225,6 +233,14 @@ main(int argc, char **argv)
 				nfrags = atoi(optarg);
 				openopts |= O_SYNC;
 			}
+			break;
+		case 'G':
+			if (!strcmp(optarg, "same"))
+				group_mode = GROUP_SAME;
+			else if (!strcmp(optarg, "rr"))
+				group_mode = GROUP_RR;
+			else
+				usage(1);
 			break;
 		case 'V':
 			printf(_("%s version %s\n"), progname, VERSION);
@@ -328,6 +344,9 @@ usage(int ret)
 "       -d              Debug, print even more.\n"
 "       -v              Verbose, more -v's more verbose.\n"
 "       -V              Print version number and exit.\n"
+"       -G same|rr\n"
+"                       Set the tmp file's allocation group:\n"
+"                       in the file's own AG/rtgroup, or round robin.\n"
 		), progname, progname, progname, _PATH_FSRLAST);
 	exit(ret);
 }
@@ -1198,6 +1217,8 @@ packfile(
 	char			ffname[SMBUFSZ];
 	int			ffd = -1;
 	int			error;
+	int			rt = fsxp->fsx_xflags & FS_XFLAG_REALTIME;
+	long long		group;
 
 	/*
 	 * Work out the extent map - nextents will be set to the
@@ -1243,7 +1264,13 @@ packfile(
 		goto out;
 	}
 
-	/* Setup extended inode flags, project identifier, etc */
+	/*
+	 * Setup extended inode flags, project identifier, etc.  An
+	 * allocation group cannot be set on a filestream inode, and the
+	 * tmp file gains nothing from being one.
+	 */
+	if (group_mode != GROUP_OFF)
+		fsxp->fsx_xflags &= ~FS_XFLAG_FILESTREAM;
 	if (fsxp->fsx_xflags || fsxp->fsx_projid) {
 		if (ioctl(tfd, FS_IOC_FSSETXATTR, fsxp) < 0) {
 			fsrprintf(_("could not set inode attrs on tmp: %s\n"),
@@ -1251,6 +1278,9 @@ packfile(
 			goto out;
 		}
 	}
+
+	/* after FSSETXATTR: the realtime flag decides AG or rtgroup */
+	group = group_target(file_fd->fd, tfd, rt);
 
 	if ((ioctl(tfd, XFS_IOC_DIOINFO, &dio)) < 0 ) {
 		fsrprintf(_("could not get DirectIO info on tmp: %s\n"), tname);
@@ -1343,6 +1373,15 @@ packfile(
 	new_nextents = getnextents(tfd);
 	if (dflag)
 		fsrprintf(_("Temporary file has %d extents (%d in original)\n"), new_nextents, cur_nextents);
+	if (group >= 0 && vflag) {
+		long long	first;
+		int		outside;
+
+		if (!group_scan(tfd, rt, group, &first, &outside))
+			fsrprintf(_("%s: tmp placed in %s %lld, %d extent(s) "
+				    "outside it\n"), fname,
+				  rt ? "rtgroup" : "AG", group, outside);
+	}
 	if (cur_nextents <= new_nextents) {
 		if (vflag)
 			fsrprintf(_("No improvement will be made (skipping): %s\n"), fname);
@@ -1553,6 +1592,89 @@ getparent(char *fname)
  */
 #define MAPSIZE	128
 #define	OUTMAP_SIZE_INCREMENT	MAPSIZE
+
+/* Bytes per AG, or per rtgroup for a realtime file. */
+static unsigned long long
+group_bytes(int rt)
+{
+	if (rt)
+		return (unsigned long long)fsgeom.rgextents *
+			fsgeom.rtextsize * fsgeom.blocksize;
+	return (unsigned long long)fsgeom.agblocks * fsgeom.blocksize;
+}
+
+/*
+ * Walk @fd's extents.  Return the group of the first one in *first (-1 if
+ * none) and how many lie outside @group in *outside.
+ */
+static int
+group_scan(int fd, int rt, long long group, long long *first,
+	   int *outside)
+{
+	unsigned long long gbytes = group_bytes(rt);
+	struct getbmap	map[MAPSIZE];
+	int		i;
+
+	*first = -1;
+	*outside = 0;
+	memset(map, 0, sizeof(map));
+	map[0].bmv_length = -1;
+	map[0].bmv_count = MAPSIZE;
+	do {
+		if (ioctl(fd, XFS_IOC_GETBMAP, map) < 0)
+			return -1;
+		for (i = 0; i < map[0].bmv_entries; i++) {
+			long long g;
+
+			if (map[i + 1].bmv_block < 0)
+				continue;
+			g = BBTOB(map[i + 1].bmv_block) / gbytes;
+			if (*first < 0)
+				*first = g;
+			if (g != group)
+				(*outside)++;
+		}
+	} while (map[0].bmv_entries == MAPSIZE - 1);
+	return 0;
+}
+
+/*
+ * Point @tfd's allocations at a group.  Returns the group, or -1 to leave
+ * placement to the kernel.
+ */
+static long long
+group_target(int file_fd, int tfd, int rt)
+{
+	struct xfs_alloc_group ag = { 0 };
+	unsigned int	nr_groups = rt ? fsgeom.rgcount : fsgeom.agcount;
+	long long	group = -1;
+	int		outside;
+
+	if (group_mode == GROUP_OFF || !nr_groups)
+		return -1;
+
+	if (group_mode == GROUP_SAME) {
+		if (group_scan(file_fd, rt, -1, &group, &outside) < 0 ||
+		    group < 0)
+			return -1;
+	} else {
+		group = group_rr++ % nr_groups;
+	}
+
+	ag.group = group;
+	if (ioctl(tfd, XFS_IOC_SET_ALLOC_GROUP, &ag) < 0) {
+		if (errno == ENOTTY || errno == EOPNOTSUPP) {
+			fsrprintf(_("allocation groups not supported, "
+				    "-G ignored\n"));
+			group_mode = GROUP_OFF;
+		} else {
+			fsrprintf(_("could not set group %lld on tmp file: "
+				    "%s\n"), group, strerror(errno));
+		}
+		return -1;
+	}
+	return group;
+}
 
 int read_fd_bmap(int fd, struct xfs_bulkstat *sin, int *cur_nextents)
 {
