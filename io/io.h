@@ -92,6 +92,7 @@ extern struct iovec *iov;
 int alloc_buffer(size_t, int, unsigned int);
 int read_buffer(int, off_t, long long, long long *, int, int);
 void dump_buffer(off_t, ssize_t);
+void allocgroup_init(void);
 void attr_init(void);
 void bmap_init(void);
 void encrypt_init(void);

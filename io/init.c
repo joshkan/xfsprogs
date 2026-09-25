@@ -47,6 +47,7 @@ init_commands(void)
 	aginfo_init();
 	attr_init();
 	bmap_init();
+	allocgroup_init();
 	bulkstat_init();
 	copy_range_init();
 	cachestat_init();

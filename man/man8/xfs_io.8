@@ -403,6 +403,20 @@ The
 should be specified in bytes, or using one of the usual units suffixes
 (k, m, g, b, etc). The extent size is always reported in units of bytes.
 .TP
+.BI "allocgroup [ \-c | " group " ]"
+Display or set the group the currently open file allocates from: an
+allocation group, or a realtime group for a realtime file.
+Allocation starts in that group and falls back to the rest of the
+filesystem when the group is full.
+On a directory, inodes created in the directory also start in that
+allocation group.
+The setting is held in memory only and is lost when the inode is
+evicted.
+The
+.B \-c
+option clears it.
+Setting the group requires CAP_SYS_ADMIN.
+.TP
 .BI "allocsp " size " 0"
 Sets the size of the file to
 .I size
